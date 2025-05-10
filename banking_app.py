@@ -65,3 +65,83 @@ def deposit_money():
     while True:
         try:
             amount=float(input("Enter deposit amount: Rs."))
+            if amount <= 0:
+                print("Error: Deposit amount must be positive.")
+                continue
+            break
+        except ValueError:
+            print("Error: Please enter a valid amount.")
+
+    accounts[account_number]['balance']+= amount
+
+    timestamp= datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+    accounts[account_number]['transactions'].append({
+        'type':'DEPOSIT',
+        'amount':amount,
+        'timestamp':timestamp
+        'description':'Deposit'
+    })
+
+    print("\n Deposit Successful")
+    print(f"New Balance: Rs.{accounts[account_number]['balance']:.2f}")
+
+def withdraw_money():
+    print("\n====== WITHDRAW MONEY ======")
+
+    account_number= input("Enter account number:").strip()
+
+    if account_number not in accounts:
+        print("Error: Account not found.")
+        return
+
+    while True:
+        try:
+            amount=float(input("Enter withdrawal amount:Rs."))
+            if amount<= 0:
+                print("Error: Withdrawal amount must be positive.")
+                continue
+            if amount> account[account_number]['balance']:
+                print("Error:Insufficient funds.")
+                continue
+            break
+        except ValueError:
+            print("Error: Please enter a valid number.")
+
+    accounts[account_number['balance']]-=amount
+
+    timestamp=datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+
+    accounts[account_number]['transactions'].append({
+        'type':'WITHDRAWAL',
+        'amount': amount,
+        'timestamp': timestamp,
+        'description':'Withdrawal'
+    })
+
+    print("\nWithdrawal Successful")
+    print(f"New Balance:Rs.{accounts[account_number]['balance']:.2f}")
+
+def check_balance():
+    print("\n====== CHECK BALANCE ======")
+
+    account_number= input("Enter account number:").strip()
+
+    if account_number not in accounts:
+        print("Error: Account not found.")
+        return
+
+    account=accounts[account_number]
+    print(f"\nAccount Holder:{account['acc_holder_name']}")
+    print(f"Account Number:{account_number}")
+    print(f"Current Balance:Rs.{account['balance']:.2f}")
+
+def Transaction_History():
+    print("\n====== TRANSACTION HISTORY ======")
+
+    account_number=input("Enter account number:").strip()
+
+    if account_number not in accounts:
+        print("Error:Account not found.")
+        return
+
+    
