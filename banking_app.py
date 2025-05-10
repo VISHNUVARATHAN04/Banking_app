@@ -144,4 +144,40 @@ def Transaction_History():
         print("Error:Account not found.")
         return
 
+    account=accounts[account_number]
+
+    if not account['transactions']:
+        print("\nNo transactions found for this account.")
+        return
+
+    print(f"\nTransaction History for Account{account_number}({account['acc_holder_name']}):")
+    print("="*80)
+    print(f"{'Type':<12}{'Amount':<12}{'Date & Time':<22}{'Description'}")
+    print("-"*80)
+
+    for transaction in account['transactions']:
+        print(f"{transaction['type']:<12}Rs.{transaction['amount']:<11.2f}{transaction['timestamp']:<22}{transaction['description']}")
+    
+    print("="*80)
+
+def Transfer_money():
+    print("\n====== TRANSFER MONEY ======")
+
+    source_account= input("Enter source account number:").strip()
+
+    if source_account not in accounts:
+        print("Error:Source account not found. ")
+        return
+
+    transfer_account=input("Enter transfer account number:").strip()
+
+    if transfer_account not in accounts:
+        print("Error: Transfer account not found.")
+        return
+
+    if source_account==transfer_account:
+        print("Error:Source and transfer accounts cannot be the same.")
+        return
+
+    
     
