@@ -1,7 +1,41 @@
 import random
 import datetime
+import os
+
+ACCOUNTS_FILE = "users.txt"
+CUSTOMERS_FILE = "customers.txt"
+ADMIN_PASSWORD = "admin123"
 
 accounts = {}
+
+
+def load_accounts():
+    if not os.path.exists(ACCOUNTS_FILE):
+        return
+    with open(ACCOUNTS_FILE, "r") as file:
+        for line in file:
+            parts = line.strip().split("|")
+            if len(parts) >= 4:
+                account_number, acc_Holder_name, balance, transactions = parts[0], parts[1], float(
+                    parts[2]), parts[3:]
+                accounts[account_number] = {
+                    'acc_holder_name': acc_Holder_name,
+                    'balance': balance,
+                    'transactions': [t for t in transactions if t]
+                }
+
+
+def save_accounts():
+    with open(ACCOUNTS_FILE, "w") as file:
+        for account_number, data in accounts.items():
+            transactions = str("|".join(data['transactions']))
+            file.write(
+                f"{account_number}|{data['acc_holder_name']}|{data['balance']}|{data['transactions']}\n")
+
+
+def log_customer(account_number, acc_Holder_name):
+    with open(CUSTOMERS_FILE, "a") as file:
+        file.write(f"{account_number}|{acc_Holder_name}\n")
 
 
 def generate_account_number():
@@ -33,23 +67,20 @@ def create_account():
     account_number = generate_account_number()
 
     timestamp = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+    transaction = f"DEPOSIT,Rs.{initial_balance:.2f},{timestamp},Initial deposit"
     accounts[account_number] = {
         'acc_holder_name': acc_Holder_name,
         'balance': initial_balance,
-        'transactions': [
-            {
-                'type': 'DEPOSIT',
-                'amount': initial_balance,
-                'timestamp': timestamp,
-                'description': 'Initial deposit'
-            }
-        ] if initial_balance >= 100 else []
+        'transactions': [transaction]
     }
+    log_customer(account_number, acc_Holder_name)
+    save_accounts()
+    if initial_balance >= 100:
 
-    print("\n Account created successfully!")
-    print(f"Account Number:{account_number}")
-    print(f"Acc_Holder_Name:{acc_Holder_name}")
-    print(f"Initial Balance: Rs{initial_balance:.2f}")
+        print("\n Account created successfully!")
+        print(f"Account Number:{account_number}")
+        print(f"Acc_Holder_Name:{acc_Holder_name}")
+        print(f"Initial Balance: Rs{initial_balance:.2f}")
 
     return account_number
 
@@ -82,7 +113,8 @@ def deposit_money():
         'timestamp': timestamp,
         'description': 'Deposit'
     })
-
+    
+    save_accounts()
     print("\n Deposit Successful")
     print(f"New Balance: Rs.{accounts[account_number]['balance']:.2f}")
 
@@ -109,7 +141,7 @@ def withdraw_money():
         except ValueError:
             print("Error: Please enter a valid number.")
 
-    accounts[account_number['balance']] -= amount
+    accounts[account_number]['balance'] -= amount
 
     timestamp = datetime.datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 
@@ -119,7 +151,8 @@ def withdraw_money():
         'timestamp': timestamp,
         'description': 'Withdrawal'
     })
-
+    
+    save_accounts()
     print("\nWithdrawal Successful")
     print(f"New Balance:Rs.{accounts[account_number]['balance']:.2f}")
 
@@ -218,6 +251,7 @@ def Transfer_money():
         'timestamp': timestamp,
         'description': f'Transfer from Account{source_account}'
     })
+    save_accounts()
 
     print("\nTransfer Successful")
     print(
@@ -240,14 +274,19 @@ def display_menu():
     print("7. Exit")
     print("="*40)
 
+
 def main():
     print("\n Welcome to the Mini Banking Application!")
-
+    pwd = input("Enter admin password to continue: ")
+    if pwd != ADMIN_PASSWORD:
+        print("Access Denied.")
+        return
+    load_accounts()
     while True:
         display_menu()
 
         try:
-            choice=int(input("Enetr your choice(1-7):"))
+            choice = int(input("Enetr your choice(1-7):"))
         except ValueError:
             print("Error: Please enter a valid number.")
             continue
@@ -271,6 +310,7 @@ def main():
             print("Error: Invalid choice. Please enter a number between 1 and 7.")
 
         input("\nPress Enter to continue...")
+
 
 if __name__ == "__main__":
     main()
