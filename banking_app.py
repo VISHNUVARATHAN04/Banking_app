@@ -4,7 +4,6 @@ import os
 
 ACCOUNTS_FILE = "users.txt"
 CUSTOMERS_FILE = "customers.txt"
-ADMIN_PASSWORD = "admin123"
 
 accounts = {}
 
@@ -28,7 +27,7 @@ def load_accounts():
 def save_accounts():
     with open(ACCOUNTS_FILE, "w") as file:
         for account_number, data in accounts.items():
-            transactions = str("|".join(data['transactions']))
+            transactions = ("|".join(data['transactions']))
             file.write(
                 f"{account_number}|{data['acc_holder_name']}|{data['balance']}|{data['transactions']}\n")
 
@@ -77,10 +76,10 @@ def create_account():
     save_accounts()
     if initial_balance >= 100:
 
-        print("\n Account created successfully!")
+        print("\nAccount created successfully!")
         print(f"Account Number:{account_number}")
         print(f"Acc_Holder_Name:{acc_Holder_name}")
-        print(f"Initial Balance: Rs{initial_balance:.2f}")
+        print(f"Initial Balance: Rs.{initial_balance:.2f}")
 
     return account_number
 
@@ -97,12 +96,12 @@ def deposit_money():
     while True:
         try:
             amount = float(input("Enter deposit amount: Rs."))
-            if amount <= 0:
-                print("Error: Deposit amount must be positive.")
+            if amount < 0 :
+                print("Error: Deposit amount cannot be negative.")
                 continue
             break
         except ValueError:
-            print("Error: Please enter a valid amount.")
+            print("Error: Deposit amount must be positive.")
 
     accounts[account_number]['balance'] += amount
 
@@ -193,10 +192,13 @@ def Transaction_History():
     print(f"{'Type':<12}{'Amount':<12}{'Date & Time':<22}{'Description'}")
     print("-"*80)
 
-    for transaction in account['transactions']:
+    account_transactions = transactions[account_number]
+    recent_transactions = account_transactions[-5:] 
+
+    for transaction in account['transactions'][5]:
         print(
             f"{transaction['type']:<12}Rs.{transaction['amount']:<11.2f}{transaction['timestamp']:<22}{transaction['description']}")
-
+        account['transaction'] += 1
     print("="*80)
 
 
@@ -274,42 +276,63 @@ def display_menu():
     print("7. Exit")
     print("="*40)
 
+def authenticate(username, password):
+    
+    return username == "admin" and password == "password123"
+
+
 
 def main():
     print("\n Welcome to the Mini Banking Application!")
-    pwd = input("Enter admin password to continue: ")
-    if pwd != ADMIN_PASSWORD:
-        print("Access Denied.")
-        return
+    
+    
     load_accounts()
-    while True:
-        display_menu()
+    
 
-        try:
-            choice = int(input("Enetr your choice(1-7):"))
-        except ValueError:
-            print("Error: Please enter a valid number.")
-            continue
 
-        if choice == 1:
-            create_account()
-        elif choice == 2:
-            deposit_money()
-        elif choice == 3:
-            withdraw_money()
-        elif choice == 4:
-            check_balance()
-        elif choice == 5:
-            Transaction_History()
-        elif choice == 6:
-            Transfer_money()
-        elif choice == 7:
-            print("\n Thank you for using our banking system. Goodbye!")
-            break
+    max_attempts = 3
+    attempts = 0
+
+    while attempts < max_attempts:
+        username = input("Enter your username: ")
+        password = input("Enter your password: ")
+
+        if authenticate(username, password):
+            print("Login successful!")
+            
         else:
-            print("Error: Invalid choice. Please enter a number between 1 and 7.")
+            attempts += 1
+            print(f"Login failed. Attempts left: {max_attempts - attempts}")
+    
 
-        input("\nPress Enter to continue...")
+        while True:
+            display_menu()
+
+            try:
+                choice = int(input("Enetr your choice(1-7):"))
+            except ValueError:
+                print("Error: Please enter a valid number.")
+                continue
+
+            if choice == 1:
+                create_account()
+            elif choice == 2:
+                deposit_money()
+            elif choice == 3:
+                withdraw_money()
+            elif choice == 4:
+                check_balance()
+            elif choice == 5:
+                Transaction_History()
+            elif choice == 6:
+                Transfer_money()
+            elif choice == 7:
+                print("\n Thank you for using our banking system. Goodbye!")
+                break
+            else:
+                print("Error: Invalid choice. Please enter a number between 1 and 7.")
+
+            input("\nPress Enter to continue...")
 
 
 if __name__ == "__main__":
